@@ -68,5 +68,5 @@ csc "jugador1.cs"
 Añade aquí la licencia que prefieras (por ejemplo MIT) si deseas compartir el código públicamente.
 ---
 
-Autor: Johnny Alberto Vera Vaca 
-Universidad Estatal Amazónica 
+-Autor: Johnny Alberto Vera Vaca 
+-Universidad Estatal Amazónica 
