@@ -64,9 +64,8 @@ csc "jugador1.cs"
 - Forkea el repositorio y abre un PR describiendo los cambios.
 - Para cambios en la lógica, añade pruebas unitarias y documenta el comportamiento.
 
-## Licencia
-Añade aquí la licencia que prefieras (por ejemplo MIT) si deseas compartir el código públicamente.
+- (MIT) si deseas compartir el código públicamente.
 ---
 
--Autor: Johnny Alberto Vera Vaca 
--Universidad Estatal Amazónica 
+- Autor: Johnny Alberto Vera Vaca 
+- Universidad Estatal Amazónica 
