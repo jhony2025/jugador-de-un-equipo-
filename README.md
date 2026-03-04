@@ -61,18 +61,11 @@ csc "jugador1.cs"
 - Para ampliar la app: persistencia (archivo/BD), exportar/importar listas, interfaz gráfica o web.
 
 ## Contribuciones
-Si quieres mejorar el proyecto:
 - Forkea el repositorio y abre un PR describiendo los cambios.
 - Para cambios en la lógica, añade pruebas unitarias y documenta el comportamiento.
 
-## Licencia
-Añade aquí la licencia que prefieras (por ejemplo MIT) si deseas compartir el código públicamente.
-
+- (MIT) si deseas compartir el código públicamente.
 ---
 
-Si quieres, puedo:
-- Añadir un ejemplo de sesión automatizada en el README.
-- Mejorar el formato (secciones adicionales o badges).
-- Incluir un `build.ps1` o `Makefile` para facilitar ejecución.
-
-Dime qué prefieres y lo aplico.
+- Autor: Johnny Alberto Vera Vaca 
+- Universidad Estatal Amazónica 
