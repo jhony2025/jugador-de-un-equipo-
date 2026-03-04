@@ -1,208 +1,164 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Text.Json;
+using System.Text.RegularExpressions;
 
-class Torneo
+class Program
 {
-    static Dictionary<string, HashSet<string>> equipos = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
+    // Diccionario que se cargará desde archivo o iniciará con valores base
+    static Dictionary<string, string> diccionario = new Dictionary<string, string>();
+
+    static string archivoDiccionario = "diccionario.json";
 
     static void Main()
     {
-        bool salir = false;
+        CargarDiccionario();
 
-        while (!salir)
+        int opcion;
+        do
         {
-            Console.WriteLine("\n--- MENÚ TORNEO DE FÚTBOL ---");
-            Console.WriteLine("1. Registrar equipo");
-            Console.WriteLine("2. Agregar jugador");
-            Console.WriteLine("3. Mostrar equipos y jugadores");
-            Console.WriteLine("4. Eliminar jugador");
-            Console.WriteLine("5. Buscar jugador");
-            Console.WriteLine("6. Contar jugadores por equipo");
-            Console.WriteLine("7. Salir");
-
+            Console.WriteLine("\n==================== MENÚ ====================");
+            Console.WriteLine("1. Traducir una frase");
+            Console.WriteLine("2. Agregar palabras al diccionario");
+            Console.WriteLine("0. Salir");
             Console.Write("Seleccione una opción: ");
-            string entrada = Console.ReadLine();
-            if (!int.TryParse(entrada, out int opcion))
+
+            bool valido = int.TryParse(Console.ReadLine(), out opcion);
+            if (!valido)
             {
-                Console.WriteLine("Entrada inválida. Ingresa un número del 1 al 7.");
+                Console.WriteLine("Por favor ingrese un número válido.");
                 continue;
             }
 
             switch (opcion)
             {
                 case 1:
-                    RegistrarEquipo();
+                    TraducirFrase();
                     break;
                 case 2:
-                    AgregarJugador();
+                    AgregarPalabra();
                     break;
-                case 3:
-                    MostrarEquipos();
-                    break;
-                case 4:
-                    EliminarJugador();
-                    break;
-                case 5:
-                    BuscarJugador();
-                    break;
-                case 6:
-                    ContarJugadores();
-                    break;
-                case 7:
-                    salir = true;
+                case 0:
+                    GuardarDiccionario();
+                    Console.WriteLine("Saliendo del programa...");
                     break;
                 default:
-                    Console.WriteLine("Opción no válida.");
+                    Console.WriteLine("Opción inválida.");
                     break;
             }
-        }
+
+        } while (opcion != 0);
     }
 
-    static void RegistrarEquipo()
+    // Cargar diccionario desde JSON o inicializarlo
+    static void CargarDiccionario()
     {
-        Console.Write("Nombre del equipo: ");
-        string nombre = Console.ReadLine()?.Trim();
-        if (string.IsNullOrEmpty(nombre))
+        if (File.Exists(archivoDiccionario))
         {
-            Console.WriteLine("Nombre inválido.");
-            return;
-        }
-
-        if (!equipos.ContainsKey(nombre))
-        {
-            equipos[nombre] = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            Console.WriteLine("Equipo registrado.");
+            string json = File.ReadAllText(archivoDiccionario);
+            diccionario = JsonSerializer.Deserialize<Dictionary<string, string>>(json);
         }
         else
         {
-            Console.WriteLine("El equipo ya existe.");
+            diccionario = new Dictionary<string, string>()
+            {
+                {"time", "tiempo"},
+                {"person", "persona"},
+                {"year", "año"},
+                {"way", "camino"},
+                {"day", "día"},
+                {"thing", "cosa"},
+                {"man", "hombre"},
+                {"world", "mundo"},
+                {"life", "vida"},
+                {"hand", "mano"},
+                {"part", "parte"},
+                {"child", "niño"},
+                {"eye", "ojo"},
+                {"woman", "mujer"},
+                {"place", "lugar"},
+                {"work", "trabajo"},
+                {"week", "semana"},
+                {"case", "caso"},
+                {"point", "punto"},
+                {"government", "gobierno"},
+                {"company", "empresa"}
+            };
         }
     }
 
-    static void AgregarJugador()
+    // Guardar diccionario en JSON
+    static void GuardarDiccionario()
     {
-        Console.Write("Equipo: ");
-        string equipo = Console.ReadLine()?.Trim();
-        if (string.IsNullOrEmpty(equipo))
-        {
-            Console.WriteLine("Equipo inválido.");
-            return;
-        }
+        string json = JsonSerializer.Serialize(diccionario, new JsonSerializerOptions { WriteIndented = true });
+        File.WriteAllText(archivoDiccionario, json);
+    }
 
-        if (equipos.TryGetValue(equipo, out var jugadores))
+    static void TraducirFrase()
+    {
+        Console.Write("\nIngrese la frase: ");
+        string frase = Console.ReadLine();
+
+        // Separar palabras y signos usando expresion regular
+        string[] tokens = Regex.Split(frase, @"(\W)"); // conserva los signos
+        string traduccion = "";
+        int traducidas = 0;
+        int noTraducidas = 0;
+
+        foreach (string token in tokens)
         {
-            Console.Write("Nombre del jugador: ");
-            string jugador = Console.ReadLine()?.Trim();
-            if (string.IsNullOrEmpty(jugador))
+            if (string.IsNullOrWhiteSpace(token))
             {
-                Console.WriteLine("Nombre de jugador inválido.");
-                return;
+                traduccion += token;
+                continue;
             }
 
-            if (jugadores.Add(jugador))
-                Console.WriteLine("Jugador agregado.");
+            string palabraLimpia = token.ToLower();
+            if (diccionario.ContainsKey(palabraLimpia))
+            {
+                string valor = diccionario[palabraLimpia];
+
+                // Mantener mayúscula inicial si la palabra original la tenía
+                if (char.IsUpper(token[0]))
+                    valor = char.ToUpper(valor[0]) + valor.Substring(1);
+
+                traduccion += valor;
+                traducidas++;
+            }
             else
-                Console.WriteLine("El jugador ya está registrado en este equipo.");
+            {
+                traduccion += token;
+                noTraducidas++;
+            }
+        }
+
+        Console.WriteLine("\nTraducción parcial:");
+        Console.WriteLine(traduccion);
+
+        Console.WriteLine($"\nReporte:");
+        Console.WriteLine($"Palabras traducidas: {traducidas}");
+        Console.WriteLine($"Palabras no traducidas: {noTraducidas}");
+    }
+
+    static void AgregarPalabra()
+    {
+        Console.Write("\nIngrese palabra en inglés: ");
+        string ingles = Console.ReadLine().Trim().ToLower();
+
+        Console.Write("Ingrese traducción en español: ");
+        string espanol = Console.ReadLine().Trim().ToLower();
+
+        if (!diccionario.ContainsKey(ingles))
+        {
+            diccionario.Add(ingles, espanol);
+            Console.WriteLine("Palabra agregada correctamente.");
         }
         else
         {
-            Console.WriteLine("El equipo no existe.");
-        }
-    }
-
-    static void MostrarEquipos()
-    {
-        if (equipos.Count == 0)
-        {
-            Console.WriteLine("No hay equipos registrados.");
-            return;
+            Console.WriteLine("La palabra ya existe en el diccionario.");
         }
 
-        foreach (var equipo in equipos)
-        {
-            Console.WriteLine("\nEquipo: " + equipo.Key);
-            if (equipo.Value.Count == 0)
-            {
-                Console.WriteLine("  No hay jugadores registrados.");
-            }
-            else
-            {
-                foreach (var jugador in equipo.Value)
-                {
-                    Console.WriteLine("  - " + jugador);
-                }
-            }
-        }
-    }
-
-    static void EliminarJugador()
-    {
-        Console.Write("Equipo: ");
-        string equipo = Console.ReadLine()?.Trim();
-        if (string.IsNullOrEmpty(equipo))
-        {
-            Console.WriteLine("Equipo inválido.");
-            return;
-        }
-
-        if (equipos.TryGetValue(equipo, out var jugadores))
-        {
-            Console.Write("Jugador a eliminar: ");
-            string jugador = Console.ReadLine()?.Trim();
-            if (string.IsNullOrEmpty(jugador))
-            {
-                Console.WriteLine("Nombre de jugador inválido.");
-                return;
-            }
-
-            if (jugadores.Remove(jugador))
-                Console.WriteLine("Jugador eliminado.");
-            else
-                Console.WriteLine("El jugador no existe en este equipo.");
-        }
-        else
-        {
-            Console.WriteLine("El equipo no existe.");
-        }
-    }
-
-    static void BuscarJugador()
-    {
-        Console.Write("Nombre del jugador: ");
-        string jugador = Console.ReadLine()?.Trim();
-
-        if (string.IsNullOrEmpty(jugador))
-        {
-            Console.WriteLine("Nombre de jugador inválido.");
-            return;
-        }
-
-        bool encontrado = false;
-
-        foreach (var equipo in equipos)
-        {
-            if (equipo.Value.Contains(jugador))
-            {
-                Console.WriteLine($"{jugador} está en el equipo {equipo.Key}");
-                encontrado = true;
-            }
-        }
-
-        if (!encontrado)
-            Console.WriteLine("Jugador no encontrado en ningún equipo.");
-    }
-
-    static void ContarJugadores()
-    {
-        if (equipos.Count == 0)
-        {
-            Console.WriteLine("No hay equipos registrados.");
-            return;
-        }
-
-        foreach (var equipo in equipos)
-        {
-            Console.WriteLine($"El equipo {equipo.Key} tiene {equipo.Value.Count} jugador(es).");
-        }
+        GuardarDiccionario(); // guardar cambios automáticamente
     }
 }
